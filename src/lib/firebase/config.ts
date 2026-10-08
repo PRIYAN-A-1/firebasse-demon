@@ -13,12 +13,49 @@ const firebaseConfig = {
   databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
 };
 
-// Initialize Firebase only if it hasn't been initialized already
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
+);
 
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-export const db = getDatabase(app);
+let appInstance: ReturnType<typeof initializeApp> | null = null;
+let authInstance: ReturnType<typeof getAuth> | null = null;
+let storageInstance: ReturnType<typeof getStorage> | null = null;
+let dbInstance: ReturnType<typeof getDatabase> | null = null;
 
-export default app;
+const getFirebaseApp = () => {
+  if (!isFirebaseConfigured) {
+    throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  }
+
+  if (!appInstance) {
+    appInstance = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  }
+
+  return appInstance;
+};
+
+export const getFirebaseAuth = () => {
+  if (!authInstance) {
+    authInstance = getAuth(getFirebaseApp());
+  }
+  return authInstance;
+};
+
+export const getFirebaseStorage = () => {
+  if (!storageInstance) {
+    storageInstance = getStorage(getFirebaseApp());
+  }
+  return storageInstance;
+};
+
+export const getFirebaseDatabase = () => {
+  if (!dbInstance) {
+    dbInstance = getDatabase(getFirebaseApp());
+  }
+  return dbInstance;
+};
+
+export { isFirebaseConfigured };

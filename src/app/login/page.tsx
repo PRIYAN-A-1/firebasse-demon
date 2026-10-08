@@ -10,7 +10,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { useToast } from "@/components/ui/Toast";
 
 // Import Firebase Auth
-import { auth } from "@/lib/firebase/config";
+import { getFirebaseAuth } from "@/lib/firebase/config";
 import { sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 
 export default function LoginPage() {
@@ -27,6 +27,14 @@ export default function LoginPage() {
   // Handle incoming Magic Link
   useEffect(() => {
     const handleEmailLinkSignIn = async () => {
+      let auth: ReturnType<typeof getFirebaseAuth>;
+      try {
+        auth = getFirebaseAuth();
+      } catch (error: any) {
+        setErrorMsg(error.message || "Firebase is not configured.");
+        return;
+      }
+
       if (isSignInWithEmailLink(auth, window.location.href)) {
         setIsLoading(true);
         let storedEmail = window.localStorage.getItem("emailForSignIn");
@@ -37,7 +45,7 @@ export default function LoginPage() {
 
         if (storedEmail) {
           try {
-            const result = await signInWithEmailLink(auth, storedEmail, window.location.href);
+            await signInWithEmailLink(auth, storedEmail, window.location.href);
             window.localStorage.removeItem("emailForSignIn");
             toastSuccess("Welcome!", "Successfully signed in with Magic Link.");
             router.push("/dashboard");
@@ -108,6 +116,7 @@ export default function LoginPage() {
     };
 
     try {
+      const auth = getFirebaseAuth();
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
       window.localStorage.setItem('emailForSignIn', email);
       setIsEmailSent(true);
@@ -184,7 +193,7 @@ export default function LoginPage() {
                   variant="primary"
                   className="w-full"
                   size="lg"
-                  isLoading={isLoading && !isSignInWithEmailLink(auth, window.location.href)}
+                  isLoading={isLoading}
                   icon={<ArrowRight className="w-4 h-4" />}
                 >
                   Sign In with Password

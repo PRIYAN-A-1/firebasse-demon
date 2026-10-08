@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useToast } from "@/components/ui/Toast";
 
-import { auth, db } from "@/lib/firebase/config";
+import { getFirebaseAuth, getFirebaseDatabase } from "@/lib/firebase/config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set } from "firebase/database";
 
@@ -47,6 +47,9 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      const auth = getFirebaseAuth();
+      const db = getFirebaseDatabase();
+
       // 1. Create User in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
