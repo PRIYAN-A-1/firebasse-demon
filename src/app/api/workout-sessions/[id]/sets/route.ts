@@ -5,14 +5,15 @@ import { workoutSetSchema } from "@/lib/validation/schemas";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await requireAuth(req);
   if (error) return error;
+  const { id } = await params;
 
   try {
     const session = await prisma.workoutSession.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!session) {

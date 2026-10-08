@@ -4,14 +4,15 @@ import { requireAuth } from "@/lib/auth/session";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await requireAuth(req);
   if (error) return error;
+  const { id } = await params;
 
   try {
     const session = await prisma.workoutSession.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         sets: {
           orderBy: { setNumber: "asc" },
@@ -31,14 +32,15 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await requireAuth(req);
   if (error) return error;
+  const { id } = await params;
 
   try {
     const session = await prisma.workoutSession.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { sets: true },
     });
 
@@ -58,7 +60,7 @@ export async function PATCH(
     const prSummary = prSets.map((s) => `${s.exerciseName}: ${s.weightKg} kg`);
 
     const updated = await prisma.workoutSession.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "completed",
         completedAt: new Date(),
