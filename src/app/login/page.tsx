@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Zap, Mail, Lock, ArrowRight, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -15,7 +15,6 @@ import { sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } fro
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { error: toastError, success: toastSuccess } = useToast();
 
   const [email, setEmail] = useState("");
