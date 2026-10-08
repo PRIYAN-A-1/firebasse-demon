@@ -4,14 +4,15 @@ import { requireAuth } from "@/lib/auth/session";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await requireAuth(req);
   if (error) return error;
+  const { id } = await params;
 
   try {
     const meal = await prisma.meal.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!meal) {
@@ -24,7 +25,7 @@ export async function DELETE(
     }
 
     await prisma.meal.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true, message: "Meal deleted successfully" });
